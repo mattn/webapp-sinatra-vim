@@ -1,0 +1,7 @@
+Get "/" (req)
+  return string(a:req.header)
+endfunction
+
+Get "/time" (req)
+  return strftime("%Y/%m/%d %H:%M:%S", localtime())
+endfunction
