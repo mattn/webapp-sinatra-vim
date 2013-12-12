@@ -1,7 +1,28 @@
+let g:count = 1
+
 Get "/" (req)
-  return string(a:req.header)
+  ContentType "text/html; charset=UTF-8"
+  return '
+\<!DOCTYPE html>
+\<html>
+\<head>
+\    <meta charset="UTF-8">
+\    <title>vimatra</title>
+\</head>
+\<body>
+\<div>' . g:count . '</div>
+\<input type=button id="count-up" value="Count Up">
+\</body>
+\</html>
+\'
 endfunction
 
 Get "/time" (req)
   return strftime("%Y/%m/%d %H:%M:%S", localtime())
+endfunction
+
+Get "/api" (req)
+  ContentType "application/json"
+  let g:count += 1
+  return {"value": g:count}
 endfunction
