@@ -8,17 +8,36 @@ Get "/" (req)
 \<head>
 \    <meta charset="UTF-8">
 \    <title>vimatra</title>
+\<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+\<script>
+\$(function() {
+\  $("#countup").click(function() {
+\    $.getJSON("/api", function(data) {
+\      $("#count").text(data.value);
+\    });
+\  }).click();
+\  setTimeout(function() {
+\    var cb = arguments.callee;
+\    $.getJSON("/time", function(data) {
+\      $("#time").text(data.value);
+\      setTimeout(cb, 1000);
+\    });
+\  }, 1000);
+\});
+\</script>
 \</head>
 \<body>
-\<div>' . g:count . '</div>
-\<input type=button id="count-up" value="Count Up">
+\Count:<span id="count">0</span><br>
+\<input type="button" id="countup" value="Count Up"><br>
+\<span id="time"></span><br>
 \</body>
 \</html>
 \'
 endfunction
 
 Get "/time" (req)
-  return strftime("%Y/%m/%d %H:%M:%S", localtime())
+  ContentType "application/json"
+  return {"value": strftime("%Y/%m/%d %H:%M:%S", localtime())}
 endfunction
 
 Get "/api" (req)

@@ -8,6 +8,10 @@ function! s:normalize_path(path)
   return tolower(substitute(fnamemodify(a:path, ':p'), '\\', '/', 'g'))
 endfunction
 
+function! s:remove_prefix(fn)
+  return substitute(a:fn, '^<SNR>\d\+_', '', '')
+endfunction
+
 function! s:to_app(pt)
   redir => names
   silent scriptnames
@@ -17,12 +21,15 @@ function! s:to_app(pt)
   if len(sl) == 0
     throw "Error!"
   endif
-  let f = printf('<SNR>_%dfunc%s', sl[0][0], webapi#sha1#sha1(a:pt))
-  return f
+  return printf('<SNR>%d_func_%s', sl[0][0], webapi#sha1#sha1(a:pt))
 endfunction
 
 function! webapp#sinatra#content_type(...)
   let s:handlers[a:1]['content_type'] = eval(a:2)
+endfunction
+
+function! webapp#sinatra#view(...)
+  let s:handlers[a:1]['body'] = eval(a:2)
 endfunction
 
 function! webapp#sinatra#post(...)
@@ -47,12 +54,11 @@ function! webapp#sinatra#handle(req)
         let ret = function(s:handlers[path].func)(a:req)
         if type(ret) == 4
           let body = webapi#json#encode(ret)
-        elseif type(ret) != 2
+        elseif type(ret) != 1
           let body = string(ret)
         else
           let body = ret
         endif
-        let body = type(ret) == 1 ? ret : string(ret)
         let header = has_key(s:handlers[path], 'content_type') ? ["Content-Type: " . s:handlers[path].content_type] : []
         return {"body": body, "header": header}
       endif
